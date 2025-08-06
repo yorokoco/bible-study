@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圣经经文深度可视化归纳</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #d4c5b9 0%, #c7b7a7 30%, #b8a895 70%, #a89485 100%);
+            min-height: 100vh;
+            color: #5d4e42;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 50px 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(168, 148, 133, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .main-title {
+            font-size: 3.2em;
+            color: #6b5b50;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            font-size: 1.4em;
+            color: #8b7d6b;
+            font-style: italic;
+            margin-bottom: 25px;
+        }
+
+        .header-description {
+            font-size: 1.1em;
+            color: #6b5b50;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin-bottom: 60px;
+        }
+
+        .scripture-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .scripture-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+        }
+
+        .scripture-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #a89485 0%, #c7b7a7 100%);
+        }
+
+        .jeremiah-panel::before {
+            background: linear-gradient(90deg, #b5a18e 0%, #9d8b7a 100%);
+        }
+
+        .psalm-panel::before {
+            background: linear-gradient(90deg, #a89485 0%, #8b7d6b 100%);
+        }
+
+        .scripture-title {
+            font-size: 2.2em;
+            color: #5d4e42;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .verse-reference {
+            text-align: center;
+            font-style: italic;
+            color: #8b7d6b;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .original-text {
+            background: linear-gradient(135deg, #f5f1ec 0%, #ede7dd 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 4px solid #a89485;
+            font-size: 0.95em;
+            line-height: 1.8;
+            color: #5d4e42;
+        }
+
+        .key-verse {
+            font-weight: bold;
+            color: #6b5b50;
+            background: rgba(168, 148, 133, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .themes-section {
+            margin-bottom: 30px;
+        }
+
+        .themes-title {
+            font-size: 1.6em;
+            color: #6b5b50;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .theme-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(232, 221, 212, 0.6) 0%, rgba(221, 208, 196, 0.6) 100%);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(168, 148, 133, 0.2);
+        }
+
+        .theme-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, rgba(232, 221, 212, 0.8) 0%, rgba(221, 208, 196, 0.8) 100%);
+        }
+
+        .theme-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .jeremiah-icon {
+            background: linear-gradient(135deg, #b5a18e 0%, #9d8b7a 100%);
+        }
+
+        .psalm-icon {
+            background: linear-gradient(135deg, #a89485 0%, #8b7d6b 100%);
+        }
+
+        .theme-content {
+            flex: 1;
+        }
+
+        .theme-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #5d4e42;
+            margin-bottom: 8px;
+        }
+
+        .theme-description {
+            color: #6b5b50;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .theme-application {
+            color: #8b7d6b;
+            font-style: italic;
+            font-size: 0.95em;
+        }
+
+        .theological-insights {
+            background: linear-gradient(135deg, #c7b7a7 0%, #b8a895 100%);
+            border-radius: 25px;
+            padding: 50px;
+            margin-bottom: 50px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theological-insights::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            left: -150px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .insights-title {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 35px;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, backdrop-filter 0.3s ease;
+        }
+
+        .insight-card:hover {
+            transform: translateY(-5px);
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .insight-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #f5f1ec;
+            font-weight: bold;
+        }
+
+        .insight-content {
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 15px;
+        }
+
+        .insight-verse {
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+            border-left: 3px solid rgba(255, 255, 255, 0.3);
+            padding-left: 15px;
+        }
+
+        .dialogue-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 50px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .dialogue-title {
+            font-size: 2.3em;
+            color: #6b5b50;
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: bold;
+        }
+
+        .dialogue-flow {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .dialogue-left, .dialogue-right {
+            background: linear-gradient(135deg, #e8ddd4 0%, #ddd0c4 100%);
+            padding: 25px;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .dialogue-left::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -15px;
+            width: 0;
+            height: 0;
+            border: 15px solid transparent;
+            border-left-color: #ddd0c4;
+            transform: translateY(-50%);
+        }
+
+        .dialogue-right::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -15px;
+            width: 0;
+            height: 0;
+            border: 15px solid transparent;
+            border-right-color: #ddd0c4;
+            transform: translateY(-50%);
+        }
+
+        .dialogue-connector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #a89485 0%, #8b7d6b 100%);
+            border-radius: 50%;
+            color: white;
+            font-size: 2em;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .dialogue-label {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #5d4e42;
+        }
+
+        .dialogue-text {
+            color: #6b5b50;
+            line-height: 1.6;
+        }
+
+        .practical-application {
+            background: linear-gradient(135deg, #d4c5b9 0%, #c7b7a7 100%);
+            border-radius: 25px;
+            padding: 50px;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        .application-title {
+            font-size: 2.3em;
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: bold;
+        }
+
+        .application-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #6b5b50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .step-title {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .step-content {
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .reflection-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .reflection-title {
+            font-size: 2.2em;
+            color: #6b5b50;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .reflection-quote {
+            font-size: 1.4em;
+            line-height: 1.8;
+            color: #5d4e42;
+            font-style: italic;
+            max-width: 900px;
+            margin: 0 auto 30px;
+            position: relative;
+            padding: 0 40px;
+        }
+
+        .reflection-quote::before,
+        .reflection-quote::after {
+            font-size: 3em;
+            color: #a89485;
+            position: absolute;
+            font-family: serif;
+        }
+
+        .reflection-quote::before {
+            content: '"';
+            top: -10px;
+            left: 0;
+        }
+
+        .reflection-quote::after {
+            content: '"';
+            bottom: -40px;
+            right: 0;
+        }
+
+        .reflection-prayer {
+            color: #8b7d6b;
+            font-style: italic;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .dialogue-flow {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .dialogue-left::after,
+            .dialogue-right::after {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5em;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .scripture-panel,
+            .theological-insights,
+            .dialogue-section,
+            .practical-application,
+            .reflection-section {
+                padding: 30px 20px;
+            }
+            
+            .insights-grid,
+            .application-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">上帝的形塑与认识</h1>
+            <p class="subtitle">耶利米书 18:1-11 × 诗篇 139:1-6,13-18</p>
+            <p class="header-description">
+                探索上帝主权塑造与亲密认识的神学深度，从窑匠与泥土的比喻到创造者对受造物的无限了解，
+                揭示基督教信仰中关于神人关系的核心真理。
+            </p>
+        </div>
+
+        <div class="content-grid">
+            <div class="scripture-panel jeremiah-panel">
+                <h2 class="scripture-title">耶利米书 18:1-11</h2>
+                <div class="verse-reference">窑匠与泥土：主权塑造的比喻</div>
+                
+                <div class="original-text">
+                    <p><strong>1-4节</strong> 耶和华的话临到耶利米说："你起来，下到窑匠的家里去，我要在那里使你听我的话。"我就下到窑匠的家里去，正遇他转轮作器皿。<span class="key-verse">窑匠用泥作的器皿，在他手中作坏了，他又用这泥另作别的器皿；窑匠看怎样好，就怎样作。</span></p>
+                    
+                    <p><strong>5-6节</strong> 耶和华的话就临到我说："耶和华说：<span class="key-verse">以色列家啊，我待你们，岂不能照这窑匠弄泥吗？以色列家啊，泥在窑匠的手中怎样，你们在我的手中也怎样。</span>"</p>
+                    
+                    <p><strong>7-11节</strong> "我何时论到一邦或一国说，要拔出、拆毁、毁灭；我所说的那一邦，若是转意离开他们的恶，我就必后悔，不将我想要施行的灾祸降与他们...你们各人当回头离开所行的恶道，改正你们的行动作为。"</p>
+                </div>
+
+                <div class="themes-section">
+                    <h3 class="themes-title">神学主题解析</h3>
+                    
+                    <div class="theme-item">
+                        <div class="theme-icon jeremiah-icon">👑</div>
+                        <div class="theme-content">
+                            <div class="theme-title">上帝的绝对主权</div>
+                            <div class="theme-description">如同窑匠对泥土拥有完全的处置权，上帝对受造物具有绝对的主权。这不是专制的权力，而是创造者对受造物的合法权柄。</div>
+                            <div class="theme-application">应用：在困境中信靠上帝的主权安排，不凭自己的理解质疑祂的计划。</div>
+                        </div>
+                    </div>
+                    
+                    <div class="theme-item">
+                        <div class="theme-icon jeremiah-icon">🔄</div>
+                        <div class="theme-content">
+                            <div class="theme-title">恩典的重新塑造</div>
+                            <div class="theme-description">器皿损坏时，窑匠不是丢弃，而是重新塑造。这显明上帝的恩典：即使我们失败跌倒，祂仍愿意重新塑造我们。</div>
+                            <div class="theme-application">应用：在失败中仍有盼望，因为上帝能够重新塑造破碎的生命。</div>
+                        </div>
+                    </div>
+                    
+                    <div class="theme-item">
+                        <div class="theme-icon jeremiah-icon">💝</div>
+                        <div class="theme-content">
+                            <div class="theme-title">悔改的恩典呼召</div>
+                            <div class="theme-description">上帝宣告审判的同时，仍然呼召人悔改。祂愿意因为人的回转而改变审判的计划，显明祂的慈爱本性。</div>
+                            <div class="theme-application">应用：任何时候都不要绝望，因为上帝总是给悔改的机会。</div>
+                        </div>
+                    </div>
+                    
+                    <div class="theme-item">
+                        <div class="theme-icon jeremiah-icon">⚖️</div>
+                        <div class="theme-content">
+                            <div class="theme-title">公义与慈爱的平衡</div>
+                            <div class="theme-description">上帝的公义要求审判罪恶，但祂的慈爱提供悔改的路径。这两个属性在祂的性格中完美平衡。</div>
+                            <div class="theme-application">应用：既要敬畏上帝的公义，也要依靠祂的慈爱恩典。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scripture-panel psalm-panel">
+                <h2 class="scripture-title">诗篇 139:1-6,13-18</h2>
+                <div class="verse-reference">上帝的全知与精心创造</div>
+                
+                <div class="original-text">
+                    <p><strong>1-6节</strong> <span class="key-verse">耶和华啊，你已经鉴察我，认识我。我坐下，我起来，你都晓得；你从远处知道我的意念。</span>我行路，我躺卧，你都细察；我一切所行的，你都熟悉。耶和华啊，我舌头上的话，你没有一句不知道的。你在我前后环绕我，按手在我身上。这样的知识奇妙，是我不能测的，至高，是我不能及的。</p>
+                    
+                    <p><strong>13-18节</strong> <span class="key-verse">我的肺腑是你所造的；我在母腹中，你已覆庇我。</span>我要称谢你，因我受造，奇妙可畏；你的作为奇妙，这是我心深知道的。我在暗中受造，在地的深处被联络；那时，我的形体并不向你隐藏。我未成形的体质，你的眼早已看见了；<span class="key-verse">你所定的日子，我尚未度一日，你都写在你的册上了。</span>神啊，你的意念向我何等宝贵！其数何等众多！我若数点，比海沙更多；我睡醒的时候，仍和你同在。</p>
+                </div>
+
+                <div class="themes-section">
+                    <h3 class="themes-title">神学主题解析</h3>
+                    
+                    <div class="theme-item">
+                        <div class="theme-icon psalm-icon">👁️</div>
+                        <div class="theme-content">
+                            <div class="theme-title">上帝的无所不知</div>
+                            <div class="theme-description">上帝完全了解我们的一切：行动、言语、思想，甚至未说出口的话。这种认识超越时空的限制，是全面而深入的。</div>
+                            <div class="theme-application">应用：在上帝面前真诚，因为祂已经完全了解我们，没有隐瞒的必要。</div>
+                        </div>
+                    </div>
+                    
+                    <div class="theme-item">
+                        <div class="theme-icon psalm-icon">🤲</div>
+                        <div class="theme-content">
+                            <div class="theme-title">精心的创造设计</div>
+                            <div class="theme-description">从母腹开始，上帝就精心设计和创造每一个生命。我们不是偶然的存在，而是上帝刻意的创造杰作。</div>
+                            <div class="theme-application">应用：认识自己的价值和独特性，因为我们是上帝精心设计的。</div>
+                        </div>
+                    </div>
+                    
+                    <div class="theme-item">
+                        <div class="theme-icon psalm-icon">✨</div>
+                        <div class="theme-content">
+                            <div class="theme-title">奇妙超越的认识</div>
+                            <div class="theme-description">上帝对我们的认识是"奇妙可畏"的，超越人类的理解能力。这样的认识既令人敬畏，又带来安慰。</div>
+                            <div class="theme-application">应用：以敬畏的心对待与上帝的关系，同时也要因祂的深度认识而得安慰。</div>
+                        </div>
+                    </div>
+                    
+                    <div class="theme-item">
+                        <div class="theme-icon psalm-icon">💭</div>
+                        <div class="theme-content">
+                            <div class="theme-title">无限宝贵的意念</div>
+                            <div class="theme-description">上帝对我们的意念"比海沙更多"，这表明祂对我们持续不断的关注和无限的爱意。</div>
+                            <div class="theme-application">应用：在孤单时记住，上帝时刻在思念我们，我们永不孤单。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theological-insights">
+            <h2 class="insights-title">深层神学洞察</h2>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <h3 class="insight-title">三一神的工作模式</h3>
+                    <div class="insight-content">
+                        这两段经文展现了三一神在救恩中的完美配搭：父神的主权计划（耶18）、圣子的道成肉身救赎、圣灵的内在更新工作。窑匠的重新塑造预表了圣灵在信徒生命中的成圣工作。
+                    </div>
+                    <div class="insight-verse">"我们原是他的工作，在基督耶稣里造成的。"（弗2:10）</div>
+                </div>
+                
+                <div class="insight-card">
+                    <h3 class="insight-title">预定论与人的责任</h3>
+                    <div class="insight-content">
+                        上帝的主权塑造与人的悔改责任并不冲突。正如窑匠有权重新塑造器皿，上帝也有权拣选和塑造；但同时，祂也呼召人主动回应，显明人在救恩中的参与性。
+                    </div>
+                    <div class="insight-verse">"你们各人当回头离开所行的恶道。"（耶18:11）</div>
+                </div>
+                
+                <div class="insight-card">
+                    <h3 class="insight-title">苦难的救赎意义</h3>
+                    <div class="insight-content">
+                        器皿的"作坏"不是失败的终点，而是重新塑造的起点。这为理解基督徒的苦难提供了深刻视角：苦难往往是上帝重新塑造我们的过程，目的是成就更美好的器皿。
+                    </div>
+                    <div class="insight-verse">"万事都互相效力，叫爱神的人得益处。"（罗8:28）</div>
+                </div>
+                
+                <div class="insight-card">
+                    <h3 class="insight-title">个体性与普世性</h3>
+                    <div class="insight-content">
+                        诗篇139强调上帝对个体的深度认识，同时耶利米书18显明祂对整个民族的主权。这揭示了上帝既关注每一个个体，也掌管整个人类历史的进程。
+                    </div>
+                    <div class="insight-verse">"我未成形的体质，你的眼早已看见了。"（诗139:16）</div>
+                </div>
+                
+                <div class="insight-card">
+                    <h3 class="insight-title">时间与永恒的交汇</h3>
+                    <div class="insight-content">
+                        上帝在时间中工作（窑匠的塑造过程），同时超越时间（从母腹中就认识我
